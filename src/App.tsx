@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { 
   Trophy, Clock, ChevronLeft, BarChart2, 
-  Play, Trash2, Download, Share2, AlertTriangle, Edit2, X, Check
+  Play, Trash2, Download, Share2, AlertTriangle, Edit2
 } from "lucide-react";
 
 // --- TYPES & STORAGE ---
@@ -38,7 +38,7 @@ const dict: Record<Lang, any> = {
   ta: { setup: "புதிய போட்டி", history: "போட்டி வரலாறு", teams: "அணிகள்", team1: "அணி 1", team2: "அணி 2", overs: "ஓவர்கள்", start: "டாஸ் தொடங்கு", toss: "டாஸ் நேரம்", head: "தலை", tail: "பூ", flip: "சுழற்று", bat: "பேட்டிங்", bowl: "பந்துவீச்சு", target: "இலக்கு", need: "தேவை", balls: "பந்துகள்", runRate: "CRR", reqRate: "RRR", extra: "உதிரிகள்", wide: "வைடு", noBall: "நோ பால்", freeHit: "ஃப்ரீ ஹிட்", wicket: "விக்கெட்", runOut: "ரன் அவுட்", undo: "பின்வாங்கு", save: "சேமி", score: "ஸ்கோர்கார்டு", over: "இந்த ஓவர்", past: "கடந்த ஓவர்கள்", sr: "SR", eco: "Eco", matchOver: "போட்டி முடிந்தது", wonBy: "வெற்றி", tied: "சமன்", share: "பகிர்", print: "PDF சேமி", endInnings: "இன்னிங்ஸை முடி", bowled: "போல்ட்", caught: "கேட்ச்", stumped: "ஸ்டம்ப்ட்", round: "சுற்று", innNum: "இன்னிங்ஸ்" },
   hi: { setup: "नया मैच", history: "मैच इतिहास", teams: "टीमें", team1: "टीम 1", team2: "टीम 2", overs: "ओवर", start: "टॉस शुरू करें", toss: "टॉस का समय", head: "हेड्स", tail: "टेल्स", flip: "सिक्का उछालें", bat: "बल्लेबाजी", bowl: "गेंदबाजी", target: "लक्ष्य", need: "चाहिए", balls: "गेंदें", runRate: "CRR", reqRate: "RRR", extra: "अतिरिक्त", wide: "वाइड", noBall: "नो बॉल", freeHit: "फ्री हिट", wicket: "विकेट", runOut: "रन आउट", undo: "पूर्ववत करें", save: "सहेजें", score: "स्कोरकार्ड", over: "यह Over", past: "पिछले ओवर", sr: "SR", eco: "Eco", matchOver: "मैच समाप्त", wonBy: "ने जीता", tied: "मैच टाई", share: "शेयर", print: "PDF सहेजें", endInnings: "पारी समाप्त", bowled: "बोल्ड", caught: "कैच", stumped: "स्टंप", round: "दौर", innNum: "पारी संख्या" },
   te: { setup: "కొత్త మ్యాచ్", history: "మ్యాచ్ చరిత్ర", teams: "జట్లు", team1: "జట్టు 1", team2: "జట్టు 2", overs: "ఓవర్లు", start: "టాస్ ప్రారంభించు", toss: "టాస్ సమయం", head: "హెడ్స్", tail: "టైల్స్", flip: "కాయిన్ ఎగరవేయండి", bat: "బ్యాటింగ్", bowl: "బౌలింగ్", target: "లక్ష్యం", need: "కావాలి", balls: "బంతులు", runRate: "CRR", reqRate: "RRR", extra: "అదనపు", wide: "వైడ్", noBall: "నో బాల్", freeHit: "ఫ్రీ హిట్", wicket: "వికెట్", runOut: "రన్ అవుట్", undo: "అన్డు", save: "సేవ్", score: "స్కోర్‌కార్డ్", over: "ఈ ఓవర్", past: "గత ఓవర్లు", sr: "SR", eco: "Eco", matchOver: "మ్యాచ్ ముగిసింది", wonBy: "గెలిచింది", tied: "మ్యాచ్ టై", share: "షేర్", print: "PDF సేవ్", endInnings: "ఇన్నింగ్స్ ముగించు", bowled: "బౌల్డ్", caught: "క్యాచ్", stumped: "స్టంప్డ్", round: "రౌండ్", innNum: "ఇన్నింగ్స్" },
-  ml: { setup: "പുതിയ മത്സരം", history: "ചരിത്രം", teams: "ടീമുകൾ", team1: "ടീം 1", team2: "ടീം 2", overs: "ഓവറുകൾ", start: "ടോസ് ആരംഭിക്കുക", toss: "ടോസ് സമയം", head: "ഹെഡ്സ്", tail: "ടെയിൽസ്", flip: "കോയിൻ ടോസ് ചെയ്യുക", bat: "ബാറ്റ്", bowl: "ബോൾ", target: "ലക്ഷ്യം", need: "ആവശ്യം", balls: "പന്തുകൾ", runRate: "CRR", reqRate: "RRR", extra: "എക്സ്ട്രാസ്", wide: "വൈഡ്", noBall: "നോ ബോൾ", freeHit: "ഫ്രീ ഹിറ്റ്", wicket: "വിക്കറ്റ്", runOut: "റൺ ഔട്ട്", undo: "അൺഡundo", save: "സേവ് ചെയ്യുക", score: "സ്കോർകാർഡ്", over: "ഈ ഓവർ", past: "കഴിഞ്ഞ ഓവറുകൾ", sr: "SR", eco: "Eco", matchOver: "മത്സരം കഴിഞ്ഞു", wonBy: "വിജയിച്ചു", tied: "സമനില", share: "പങ്കിടുക", print: "PDF സംരക്ഷിക്കുക", endInnings: "ഇന്നിംഗ്സ് അവസാനിപ്പിക്കുക", bowled: "ബൗൾഡ്", caught: "ക്യാച്ച്", stumped: "സ്റ്റമ്പ്ഡ്", round: "റൗണ്ട്", innNum: "ഇന്നിംഗ്സ്" }
+  ml: { setup: "പുതിയ മത്സരം", history: "ചരിത്രം", teams: "ടീമുകൾ", team1: "ടീം 1", team2: "ടീം 2", overs: "ഓവറുകൾ", start: "ടോസ് ആരംഭിക്കുക", toss: "ടോസ് സമയം", head: "ഹെഡ്സ്", tail: "ടെയിൽസ്", flip: "കോയിൻ ടോസ് ചെയ്യുക", bat: "ബാറ്റ്", bowl: "ബോൾ", target: "ലക്ഷ്യം", need: "ആവശ്യം", balls: "പന്തുകൾ", runRate: "CRR", reqRate: "RRR", extra: "എക്സ്ട്രാസ്", wide: "വൈഡ്", noBall: "നോ ബോൾ", freeHit: "ഫ്രീ ഹിറ്റ്", wicket: "വിക്കറ്റ്", runOut: "റൺ ഔട്ട്", undo: "അൺഡു", save: "സേവ് ചെയ്യുക", score: "സ്കോർകാർഡ്", over: "ഈ ഓവർ", past: "കഴിഞ്ഞ ഓവറുകൾ", sr: "SR", eco: "Eco", matchOver: "മത്സരം കഴിഞ്ഞു", wonBy: "വിജയിച്ചു", tied: "സമനില", share: "പങ്കിടുക", print: "PDF സംരക്ഷിക്കുക", endInnings: "ഇന്നിംഗ്സ് അവസാനിപ്പിക്കുക", bowled: "ബൗൾഡ്", caught: "ക്യാച്ച്", stumped: "സ്റ്റമ്പ്ഡ്", round: "റൗണ്ട്", innNum: "ഇന്നിംഗ്സ്" }
 };
 
 // --- FORMAT LOGIC HELPERS ---
@@ -345,8 +345,8 @@ export default function App() {
   if (view === 'setup') return <SetupView t={t} lang={lang} setLang={setLang} setView={setView} setActiveMatch={saveState} matches={matches} onResume={(m: GameState) => { saveState(m); setView(m.matchStatus === 'playing' ? 'scoring' : 'end'); }} />;
   if (view === 'toss' && activeMatch) return <TossView t={t} lang={lang} setLang={setLang} match={activeMatch} updateMatch={saveState} setView={setView} />;
   if (view === 'scoring' && activeMatch) return <ScoringView t={t} lang={lang} setLang={setLang} match={activeMatch} updateMatch={saveState} sync={syncMatches} setView={setView} />;
-  if (view === 'end' && activeMatch) return <EndView t={t} lang={lang} setLang={setLang} match={activeMatch} updateMatch={(m: GameState) => {saveState(m); syncMatches(m);}} setView={setView} clearActive={() => { localStorage.removeItem(ACTIVE_MATCH_KEY); setActiveMatch(null); }} />;
-  if (view === 'history') return <HistoryView t={t} lang={lang} setLang={setLang} matches={matches} sync={syncMatches} setView={setView} onResume={(m: GameState) => { saveState(m); setView(m.matchStatus === 'playing' ? 'scoring' : 'end'); }} onDelete={(id: string) => { const ms = matches.filter(x => x.id !== id); setMatches(ms); localStorage.setItem(STORAGE_KEY, JSON.stringify(ms)); }} />;
+  if (view === 'end' && activeMatch) return <EndView t={t} lang={lang} setLang={setLang} match={activeMatch} setView={setView} clearActive={() => { localStorage.removeItem(ACTIVE_MATCH_KEY); setActiveMatch(null); }} />;
+  if (view === 'history') return <HistoryView t={t} lang={lang} setLang={setLang} matches={matches} setView={setView} onResume={(m: GameState) => { saveState(m); setView(m.matchStatus === 'playing' ? 'scoring' : 'end'); }} onDelete={(id: string) => { const ms = matches.filter(x => x.id !== id); setMatches(ms); localStorage.setItem(STORAGE_KEY, JSON.stringify(ms)); }} />;
   return null;
 }
 
@@ -484,14 +484,12 @@ function SetupView({ t, lang, setLang, setView, setActiveMatch, matches, onResum
 function TossView({ t, lang, setLang, match, updateMatch, setView }: any) {
   const [phase, setPhase] = useState<'caller'|'call'|'flip'|'decision'>('caller');
   const [caller, setCaller] = useState<string>('');
-  const [call, setCall] = useState<'heads'|'tails'|null>(null);
   const [result, setResult] = useState<'heads'|'tails'|null>(null);
   const [winner, setWinner] = useState<string>('');
 
   const handleCaller = (team: string) => { setCaller(team); setPhase('call'); };
   
   const handleCall = (c: 'heads'|'tails') => {
-    setCall(c);
     setPhase('flip');
     setTimeout(() => {
       const outcome = Math.random() > 0.5 ? 'heads' : 'tails';
@@ -1033,13 +1031,12 @@ function ScoringView({ t, lang, setLang, match, updateMatch, sync, setView }: an
           </div>
         </div>
       )}
-      <GlobalFooter />
     </div>
   );
 }
 
 // --- END VIEW ---
-function EndView({ t, lang, setLang, match, updateMatch, setView, clearActive }: any) {
+function EndView({ t, lang, setLang, match, setView, clearActive }: any) {
   let res = t.tied;
   if(match.matchStatus === 'team1_won') res = `${match.team1} ${t.wonBy} ${match.score1.runs - match.score2.runs} runs`;
   if(match.matchStatus === 'team2_won') {
@@ -1087,7 +1084,7 @@ function EndView({ t, lang, setLang, match, updateMatch, setView, clearActive }:
 }
 
 // --- HISTORY VIEW ---
-function HistoryView({ t, lang, setLang, matches, sync, setView, onResume, onDelete }: any) {
+function HistoryView({ t, lang, setLang, matches, setView, onResume, onDelete }: any) {
   const [selectedMatch, setSelectedMatch] = useState<GameState | null>(null);
 
   if (selectedMatch) {

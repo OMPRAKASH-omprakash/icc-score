@@ -449,7 +449,7 @@ export default function App() {
   if (view === 'toss' && activeMatch) return <TossView t={t} lang={lang} setLang={setLang} match={activeMatch} updateMatch={saveState} setView={setView} />;
   if (view === 'innings_break' && activeMatch) return <InningsBreakView t={t} lang={lang} setLang={setLang} match={activeMatch} updateMatch={saveState} setView={setView} />;
   if (view === 'scoring' && activeMatch) return <ScoringView t={t} lang={lang} setLang={setLang} match={activeMatch} updateMatch={saveState} sync={syncMatches} setView={setView} />;
-  if (view === 'end' && activeMatch) return <EndView t={t} lang={lang} setLang={setLang} match={activeMatch} updateMatch={(m: GameState) => {saveState(m); syncMatches(m);}} setView={setView} clearActive={() => { localStorage.removeItem(ACTIVE_MATCH_KEY); setActiveMatch(null); }} onTieBreaker={handleTieBreaker} />;
+  if (view === 'end' && activeMatch) return <EndView t={t} lang={lang} setLang={setLang} match={activeMatch} setView={setView} clearActive={() => { localStorage.removeItem(ACTIVE_MATCH_KEY); setActiveMatch(null); }} onTieBreaker={handleTieBreaker} />;
   if (view === 'history') return <HistoryView t={t} lang={lang} setLang={setLang} matches={matches} sync={syncMatches} setView={setView} onResume={(m: GameState) => { saveState(m); setView(m.matchStatus === 'innings_break' ? 'innings_break' : m.matchStatus === 'playing' ? 'scoring' : 'end'); }} onDelete={(id: string) => { const ms = matches.filter(x => x.id !== id); setMatches(ms); localStorage.setItem(STORAGE_KEY, JSON.stringify(ms)); }} />;
   if (view === 'performance') return <PerformanceView t={t} lang={lang} setLang={setLang} matches={matches} setView={setView} />;
   return null;
@@ -938,7 +938,7 @@ function ScoringView({ t, lang, setLang, match, updateMatch, sync, setView }: an
     if (ns.matchStatus === 'innings_break') {
       setView('innings_break');
       return;
-    } else if (ns.matchStatus !== 'playing') {
+    } else if ((ns.matchStatus as string) !== 'playing') {
       setView('end');
       return; 
     }
@@ -1015,17 +1015,14 @@ function ScoringView({ t, lang, setLang, match, updateMatch, sync, setView }: an
       if (sc.balls >= ns.overs * 6) {
           if (ns.innings === 1) {
             ns.matchStatus = 'innings_break';
+            updateMatch(ns); sync(ns); setView('innings_break'); return;
           } else {
             const target = ns.revisedTarget ? ns.revisedTarget : ns.score1.runs + 1;
             if (ns.score2.runs >= target) ns.matchStatus = 'team2_won';
             else if (ns.score2.runs < target - 1) ns.matchStatus = 'team1_won';
             else ns.matchStatus = 'tie';
-          }
-          if (ns.matchStatus === 'innings_break') {
-             updateMatch(ns); sync(ns); setView('innings_break'); return;
-          }
-          if (ns.matchStatus !== 'playing') {
-             updateMatch(ns); sync(ns); setView('end'); return;
+            
+            updateMatch(ns); sync(ns); setView('end'); return;
           }
       }
       updateMatch(ns); sync(ns); setModal({type: null});
@@ -1049,12 +1046,11 @@ function ScoringView({ t, lang, setLang, match, updateMatch, sync, setView }: an
       else ns.matchStatus = 'tie';
     }
     pushHistory(ns);
+
     if (ns.matchStatus === 'innings_break') {
       setView('innings_break');
-    } else if (ns.matchStatus !== 'playing') {
-      setView('end');
     } else {
-      setModal({type: null});
+      setView('end');
     }
   };
 
@@ -1062,12 +1058,12 @@ function ScoringView({ t, lang, setLang, match, updateMatch, sync, setView }: an
   const nStriker = score.striker === 1 ? score.batter2 : score.batter1;
   const crr = calcCRR(score.runs, score.balls);
   
-  let targetScore = 0, req = '0.00', need = 0, ballsL = 0;
+  let targetScore = 0, req = '0.00', needRuns = 0, ballsL = 0;
   if (m.innings === 2) {
     targetScore = m.revisedTarget ? m.revisedTarget : m.score1.runs + 1;
-    need = targetScore - score.runs;
+    needRuns = targetScore - score.runs;
     ballsL = (m.overs * 6) - score.balls;
-    req = calcCRR(need, ballsL);
+    req = calcCRR(needRuns, ballsL);
   }
 
   const currentMaxBalls = Math.max(m.score1.balls, m.score2.balls);
@@ -1102,7 +1098,7 @@ function ScoringView({ t, lang, setLang, match, updateMatch, sync, setView }: an
                  <div className="text-[10px] text-red-300 font-bold">{t.target} {m.revisedTarget ? '(DLS)' : ''}</div>
                  <div className="text-lg font-black">{targetScore}</div>
               </div>
-              <div className="text-center px-4"><div className="text-sm font-black text-yellow-400">{need > 0 ? need : 0} {t.need}</div><div className="text-[10px] text-slate-300">{ballsL} {t.balls}</div></div>
+              <div className="text-center px-4"><div className="text-sm font-black text-yellow-400">{needRuns > 0 ? needRuns : 0} {t.need}</div><div className="text-[10px] text-slate-300">{ballsL} {t.balls}</div></div>
               <div className="text-right"><div className="text-[10px] text-red-300 font-bold">{t.reqRate}</div><div className="text-sm font-black">{req}</div></div>
             </div>
           )}
@@ -1343,7 +1339,7 @@ function ScoringView({ t, lang, setLang, match, updateMatch, sync, setView }: an
 }
 
 // --- END VIEW ---
-function EndView({ t, lang, setLang, match, updateMatch, setView, clearActive, onTieBreaker }: any) {
+function EndView({ t, lang, setLang, match, setView, clearActive, onTieBreaker }: any) {
   let res = t.tied;
   if (match.isSuperOver && match.matchStatus !== 'tie') {
      res = `${match.matchStatus === 'team1_won' ? match.team1 : match.team2} won the ${match.tieBreakerInfo}`;
@@ -1352,8 +1348,6 @@ function EndView({ t, lang, setLang, match, updateMatch, setView, clearActive, o
   } else if (match.matchStatus === 'team1_won') {
      res = `${match.team1} ${t.wonBy} ${match.score1.runs - match.score2.runs} runs`;
   } else if (match.matchStatus === 'team2_won') {
-     const target = match.revisedTarget ? match.revisedTarget : match.score1.runs + 1;
-     const need = target - match.score2.runs;
      const ballsLeft = (match.overs * 6) - match.score2.balls;
      res = `${match.team2} ${t.wonBy} ${10 - match.score2.wickets} wkts (${ballsLeft} balls left)`;
   }
